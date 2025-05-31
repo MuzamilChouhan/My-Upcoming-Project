@@ -287,7 +287,7 @@ const ItemDetail: React.FC = () => {
   const handleWhatsApp = () => {
     if (item) {
       const message = `Hi! I'm interested in ordering ${item.name} (${item.price}). Please let me know the availability and preparation time.`;
-      const phoneNumber = '03336203891';
+      const phoneNumber = '923336203891';
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     }

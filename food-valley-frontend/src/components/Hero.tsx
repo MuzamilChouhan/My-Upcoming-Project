@@ -2,17 +2,34 @@ import React, { Suspense } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Text3D, Center } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { Link } from 'react-router-dom';
 import { FaArrowDown, FaUtensils, FaStar } from 'react-icons/fa';
+import { FoodScene } from './Food3D';
 
 const HeroSection = styled.section`
   min-height: 100vh;
   display: flex;
   align-items: center;
   position: relative;
-  background: ${({ theme }) => theme.colors.gradient.background};
+  background: linear-gradient(135deg, 
+    rgba(255, 248, 220, 0.9) 0%, 
+    rgba(255, 255, 255, 0.95) 50%, 
+    rgba(247, 147, 30, 0.1) 100%
+  );
   overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23f7931e" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ff6b35" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23f7931e" opacity="0.15"/><circle cx="10" cy="50" r="0.5" fill="%23ff6b35" opacity="0.15"/><circle cx="90" cy="30" r="0.5" fill="%23f7931e" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+    z-index: 1;
+  }
 `;
 
 const HeroContent = styled.div`
@@ -20,114 +37,171 @@ const HeroContent = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: ${({ theme }) => theme.spacing['4xl']};
   align-items: center;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacing['2xl']};
+  position: relative;
   z-index: 2;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     grid-template-columns: 1fr;
     gap: ${({ theme }) => theme.spacing['2xl']};
     text-align: center;
-    padding: 0 ${({ theme }) => theme.spacing.md};
   }
 `;
 
-const TextContent = styled(motion.div)`
-  z-index: 3;
+const TextContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xl};
 `;
 
 const Title = styled(motion.h1)`
-  font-size: ${({ theme }) => theme.fontSizes['5xl']};
-  font-weight: 700;
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.text.primary};
   line-height: 1.1;
+  margin: 0;
 
   .highlight {
     background: ${({ theme }) => theme.colors.gradient.primary};
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: ${({ theme }) => theme.colors.gradient.primary};
+      border-radius: 2px;
+      transform: scaleX(0);
+      animation: underlineGrow 1.5s ease-out 1s forwards;
+    }
   }
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
-    font-size: ${({ theme }) => theme.fontSizes['3xl']};
+  @keyframes underlineGrow {
+    to {
+      transform: scaleX(1);
+    }
   }
+`;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    font-size: ${({ theme }) => theme.fontSizes['2xl']};
-  }
+const UrduText = styled(motion.p)`
+  font-size: ${({ theme }) => theme.fontSizes.xl};
+  color: ${({ theme }) => theme.colors.secondary};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  margin: 0;
+  font-family: 'Noto Nastaliq Urdu', serif;
+  text-align: right;
+  direction: rtl;
 `;
 
 const Subtitle = styled(motion.p)`
-  font-size: ${({ theme }) => theme.fontSizes.xl};
-  color: ${({ theme }) => theme.colors.text.secondary};
-  margin-bottom: ${({ theme }) => theme.spacing['2xl']};
-  line-height: 1.6;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
-    font-size: ${({ theme }) => theme.fontSizes.lg};
-  }
-`;
-
-const UrduText = styled(motion.div)`
-  font-family: ${({ theme }) => theme.fonts.urdu};
   font-size: ${({ theme }) => theme.fontSizes.lg};
-  color: ${({ theme }) => theme.colors.primary};
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
-  direction: rtl;
-  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  line-height: 1.6;
+  margin: 0;
+  max-width: 500px;
 `;
 
 const ButtonGroup = styled(motion.div)`
   display: flex;
   gap: ${({ theme }) => theme.spacing.lg};
-  margin-bottom: ${({ theme }) => theme.spacing['2xl']};
+  flex-wrap: wrap;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
   }
 `;
 
-const PrimaryButton = styled(Link)`
+const PrimaryButton = styled(motion(Link))`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.xl};
   background: ${({ theme }) => theme.colors.gradient.primary};
   color: white;
-  padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing['2xl']};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  font-weight: 600;
-  font-size: ${({ theme }) => theme.fontSizes.lg};
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm};
-  box-shadow: ${({ theme }) => theme.shadows.lg};
-  transition: all 0.3s ease;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  font-size: ${({ theme }) => theme.fontSizes.md};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  position: relative;
+  overflow: hidden;
+  transition: all ${({ theme }) => theme.transitions.normal};
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s;
+  }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.xl};
+    transform: translateY(-3px);
+    box-shadow: ${({ theme }) => theme.shadows.lg};
+    
+    &::before {
+      left: 100%;
+    }
+  }
+
+  svg {
+    transition: transform ${({ theme }) => theme.transitions.normal};
+  }
+
+  &:hover svg {
+    transform: translateX(5px);
   }
 `;
 
-const SecondaryButton = styled(Link)`
-  background: transparent;
-  color: ${({ theme }) => theme.colors.primary};
-  padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing['2xl']};
-  border: 2px solid ${({ theme }) => theme.colors.primary};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  font-weight: 600;
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-  text-decoration: none;
+const SecondaryButton = styled(motion(Link))`
   display: inline-flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
-  transition: all 0.3s ease;
+  padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.xl};
+  background: transparent;
+  color: ${({ theme }) => theme.colors.primary};
+  text-decoration: none;
+  border: 2px solid ${({ theme }) => theme.colors.primary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  font-size: ${({ theme }) => theme.fontSizes.md};
+  position: relative;
+  overflow: hidden;
+  transition: all ${({ theme }) => theme.transitions.normal};
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${({ theme }) => theme.colors.gradient.primary};
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform ${({ theme }) => theme.transitions.normal};
+    z-index: -1;
+  }
 
   &:hover {
-    background: ${({ theme }) => theme.colors.primary};
     color: white;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: ${({ theme }) => theme.shadows.lg};
+    
+    &::before {
+      transform: scaleX(1);
+    }
   }
 `;
 
@@ -155,8 +229,20 @@ const Feature = styled.div`
 const CanvasContainer = styled.div`
   height: 500px;
   position: relative;
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  overflow: hidden;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(247, 147, 30, 0.05) 100%
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    height: 400px;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
     height: 300px;
   }
 `;
@@ -172,6 +258,7 @@ const ScrollIndicator = styled(motion.div)`
   gap: ${({ theme }) => theme.spacing.sm};
   color: ${({ theme }) => theme.colors.text.secondary};
   cursor: pointer;
+  z-index: 3;
 
   svg {
     animation: bounce 2s infinite;
@@ -190,39 +277,20 @@ const ScrollIndicator = styled(motion.div)`
   }
 `;
 
-const FloatingFood = () => {
-  return (
-    <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color="#FF6B35" />
-    </mesh>
-  );
-};
-
+// Main 3D Scene Component
 const Hero3D = () => {
   return (
-    <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+    <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
       <Suspense fallback={null}>
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} />
-        <Center>
-          <Text3D
-            font="/fonts/helvetiker_regular.typeface.json"
-            size={0.5}
-            height={0.1}
-            curveSegments={12}
-            bevelEnabled
-            bevelThickness={0.02}
-            bevelSize={0.02}
-            bevelOffset={0}
-            bevelSegments={5}
-          >
-            Food Valley
-            <meshStandardMaterial color="#FF6B35" />
-          </Text3D>
-        </Center>
-        <FloatingFood />
-        <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} />
+        <FoodScene />
+        <OrbitControls 
+          enableZoom={false} 
+          enablePan={false}
+          autoRotate
+          autoRotateSpeed={1}
+          maxPolarAngle={Math.PI / 2}
+          minPolarAngle={Math.PI / 3}
+        />
       </Suspense>
     </Canvas>
   );
@@ -270,11 +338,19 @@ const Hero: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <PrimaryButton to="/menu">
+            <PrimaryButton 
+              to="/menu"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <FaUtensils />
               View Menu
             </PrimaryButton>
-            <SecondaryButton to="/contact">
+            <SecondaryButton 
+              to="/contact"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               Order Now
             </SecondaryButton>
           </ButtonGroup>
@@ -285,7 +361,7 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.8 }}
           >
             <Feature>
-              <FaStar />
+              <FaUtensils />
               <span>Fresh Ingredients</span>
             </Feature>
             <Feature>
@@ -293,21 +369,14 @@ const Hero: React.FC = () => {
               <span>Authentic Taste</span>
             </Feature>
             <Feature>
-              <FaStar />
+              <FaUtensils />
               <span>Quick Service</span>
             </Feature>
           </Features>
         </TextContent>
 
         <CanvasContainer>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            style={{ height: '100%' }}
-          >
-            <Hero3D />
-          </motion.div>
+          <Hero3D />
         </CanvasContainer>
       </HeroContent>
 
@@ -315,7 +384,7 @@ const Hero: React.FC = () => {
         onClick={scrollToMenu}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1.2 }}
+        transition={{ duration: 1, delay: 1.5 }}
       >
         <span>Scroll to explore</span>
         <FaArrowDown />

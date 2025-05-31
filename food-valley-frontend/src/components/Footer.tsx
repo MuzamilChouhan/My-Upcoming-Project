@@ -231,7 +231,7 @@ const Footer: React.FC = () => {
 
   const handleWhatsApp = () => {
     const message = "Hi! I'd like to place an order from Food Valley.";
-    const phoneNumber = '03336203891';
+    const phoneNumber = '923336203891';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };

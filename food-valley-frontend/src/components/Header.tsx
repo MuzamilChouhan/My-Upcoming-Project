@@ -11,11 +11,31 @@ const HeaderContainer = styled(motion.header)<{ scrolled: boolean }>`
   right: 0;
   z-index: 1000;
   background: ${({ scrolled, theme }) => 
-    scrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.9)'};
-  backdrop-filter: blur(10px);
-  border-bottom: ${({ scrolled }) => scrolled ? '1px solid rgba(0,0,0,0.1)' : 'none'};
-  transition: all 0.3s ease;
-  box-shadow: ${({ scrolled, theme }) => scrolled ? theme.shadows.md : 'none'};
+    scrolled 
+      ? `${theme.colors.glass}` 
+      : 'rgba(255, 255, 255, 0.1)'
+  };
+  backdrop-filter: blur(${({ theme }) => theme.blur.lg});
+  border-bottom: ${({ scrolled, theme }) => 
+    scrolled ? `1px solid ${theme.colors.borderLight}` : 'none'
+  };
+  transition: all ${({ theme }) => theme.transitions.normal};
+  box-shadow: ${({ scrolled, theme }) => 
+    scrolled ? theme.shadows.glass : 'none'
+  };
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${({ theme }) => theme.colors.gradient.glass};
+    opacity: ${({ scrolled }) => scrolled ? 0.8 : 0.3};
+    transition: opacity ${({ theme }) => theme.transitions.normal};
+    z-index: -1;
+  }
 `;
 
 const Nav = styled.nav`
@@ -37,14 +57,17 @@ const Nav = styled.nav`
 const Logo = styled(Link)`
   display: flex;
   align-items: center;
-  font-family: ${({ theme }) => theme.fonts.secondary};
+  font-family: ${({ theme }) => theme.fonts.display};
   font-size: ${({ theme }) => theme.fontSizes['2xl']};
-  font-weight: 700;
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
   color: ${({ theme }) => theme.colors.primary};
   text-decoration: none;
+  transition: all ${({ theme }) => theme.transitions.normal};
+  position: relative;
 
   &:hover {
     transform: scale(1.05);
+    filter: drop-shadow(${({ theme }) => theme.shadows.glow});
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
@@ -52,9 +75,9 @@ const Logo = styled(Link)`
   }
 `;
 
-const LogoIcon = styled.div`
-  width: 40px;
-  height: 40px;
+const LogoIcon = styled(motion.div)`
+  width: 48px;
+  height: 48px;
   background: ${({ theme }) => theme.colors.gradient.primary};
   border-radius: ${({ theme }) => theme.borderRadius.full};
   display: flex;
@@ -62,8 +85,34 @@ const LogoIcon = styled.div`
   justify-content: center;
   margin-right: ${({ theme }) => theme.spacing.sm};
   color: white;
-  font-weight: bold;
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
   font-size: ${({ theme }) => theme.fontSizes.lg};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+    transform: rotate(45deg);
+    transition: all ${({ theme }) => theme.transitions.slow};
+    opacity: 0;
+  }
+
+  &:hover::before {
+    opacity: 1;
+    animation: shine 0.6s ease-in-out;
+  }
+
+  @keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  }
 `;
 
 const NavLinks = styled.div<{ isOpen: boolean }>`
@@ -88,34 +137,44 @@ const NavLinks = styled.div<{ isOpen: boolean }>`
 `;
 
 const NavLink = styled(Link)<{ active: boolean }>`
-  font-weight: 500;
-  color: ${({ active, theme }) => active ? theme.colors.primary : theme.colors.text.primary};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  color: ${({ active, theme }) => 
+    active ? theme.colors.primary : theme.colors.text.primary
+  };
   position: relative;
-  padding: ${({ theme }) => theme.spacing.sm} 0;
-  transition: color 0.3s ease;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  transition: all ${({ theme }) => theme.transitions.normal};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  text-decoration: none;
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
+    background: rgba(255, 107, 53, 0.1);
+    transform: translateY(-2px);
   }
 
   &::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: ${({ active }) => active ? '100%' : '0'};
-    height: 2px;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: ${({ active }) => active ? '80%' : '0'};
+    height: 3px;
     background: ${({ theme }) => theme.colors.gradient.primary};
-    transition: width 0.3s ease;
+    border-radius: ${({ theme }) => theme.borderRadius.full};
+    transition: width ${({ theme }) => theme.transitions.normal};
   }
 
   &:hover::after {
-    width: 100%;
+    width: 80%;
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     font-size: ${({ theme }) => theme.fontSizes.xl};
-    padding: ${({ theme }) => theme.spacing.md} 0;
+    padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.xl};
+    margin: ${({ theme }) => theme.spacing.sm} 0;
+    border-radius: ${({ theme }) => theme.borderRadius.xl};
   }
 `;
 
@@ -205,7 +264,16 @@ const Header: React.FC = () => {
     >
       <Nav>
         <Logo to="/">
-          <LogoIcon>FV</LogoIcon>
+          <LogoIcon
+            whileHover={{ 
+              scale: 1.1,
+              rotate: 360,
+              transition: { duration: 0.6 }
+            }}
+            whileTap={{ scale: 0.95 }}
+          >
+            FV
+          </LogoIcon>
           Food Valley
         </Logo>
 

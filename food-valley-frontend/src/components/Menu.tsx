@@ -67,22 +67,45 @@ const CategoryTabs = styled.div`
 
 const CategoryTab = styled(motion.button)<{ active: boolean }>`
   padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.xl};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border-radius: ${({ theme }) => theme.borderRadius.full};
   border: 2px solid ${({ theme }) => theme.colors.primary};
   background: ${({ active, theme }) => 
-    active ? theme.colors.gradient.primary : 'transparent'};
+    active ? theme.colors.gradient.primary : 'rgba(255, 255, 255, 0.9)'};
   color: ${({ active, theme }) => 
     active ? 'white' : theme.colors.primary};
-  font-weight: 600;
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
   font-size: ${({ theme }) => theme.fontSizes.md};
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all ${({ theme }) => theme.transitions.normal};
   text-transform: capitalize;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(${({ theme }) => theme.blur.sm});
+  box-shadow: ${({ active, theme }) => 
+    active ? theme.shadows.md : theme.shadows.sm};
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${({ theme }) => theme.colors.gradient.primary};
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform ${({ theme }) => theme.transitions.normal};
+    z-index: -1;
+  }
 
   &:hover {
-    background: ${({ theme }) => theme.colors.gradient.primary};
     color: white;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: ${({ theme }) => theme.shadows.lg};
+    
+    &::before {
+      transform: scaleX(1);
+    }
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
@@ -103,16 +126,36 @@ const MenuGrid = styled(motion.div)`
 `;
 
 const MenuCard = styled(motion.div)`
-  background: white;
-  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  background: ${({ theme }) => theme.colors.surface};
+  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
   overflow: hidden;
-  box-shadow: ${({ theme }) => theme.shadows.md};
-  transition: all 0.3s ease;
+  box-shadow: ${({ theme }) => theme.shadows.lg};
+  transition: all ${({ theme }) => theme.transitions.normal};
   position: relative;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  backdrop-filter: blur(${({ theme }) => theme.blur.sm});
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${({ theme }) => theme.colors.gradient.glass};
+    opacity: 0;
+    transition: opacity ${({ theme }) => theme.transitions.normal};
+    z-index: 1;
+    pointer-events: none;
+  }
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: ${({ theme }) => theme.shadows.xl};
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: ${({ theme }) => theme.shadows['2xl']};
+    
+    &::before {
+      opacity: 0.1;
+    }
   }
 `;
 
@@ -135,8 +178,28 @@ const PlaceholderImage = styled.div`
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: ${({ theme }) => theme.fontSizes['2xl']};
-  font-weight: bold;
+  font-size: ${({ theme }) => theme.fontSizes['3xl']};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    50% { transform: translateX(0%) translateY(0%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  }
 `;
 
 const CardOverlay = styled.div`
@@ -157,20 +220,40 @@ const CardOverlay = styled.div`
   }
 `;
 
-const ViewButton = styled(Link)`
+const ViewButton = styled(motion(Link))`
   background: ${({ theme }) => theme.colors.gradient.primary};
   color: white;
   padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
-  font-weight: 600;
-  transition: all 0.3s ease;
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  transition: all ${({ theme }) => theme.transitions.normal};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left ${({ theme }) => theme.transitions.slow};
+  }
 
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: ${({ theme }) => theme.shadows.lg};
+    
+    &::before {
+      left: 100%;
+    }
   }
 `;
 
@@ -277,7 +360,7 @@ const Menu: React.FC = () => {
 
   const handleContact = (item: MenuItem) => {
     const message = `Hi! I'm interested in ordering ${item.name} (${item.price}). Please let me know the availability.`;
-    const phoneNumber = '03336203891';
+    const phoneNumber = '923336203891';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -370,7 +453,11 @@ const Menu: React.FC = () => {
                 </PlaceholderImage>
 
                 <CardOverlay>
-                  <ViewButton to={`/item/${item.id}`}>
+                  <ViewButton 
+                    to={`/item/${item.id}`}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
                     <FaEye />
                     View Details
                   </ViewButton>

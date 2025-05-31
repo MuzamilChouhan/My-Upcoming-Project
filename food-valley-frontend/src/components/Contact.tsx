@@ -299,7 +299,7 @@ const Contact: React.FC = () => {
 
   const handleWhatsApp = () => {
     const message = `Hi! I'm interested in ordering from Food Valley. ${formData.message || 'Please share your menu and availability.'}`;
-    const phoneNumber = '03336203891';
+    const phoneNumber = '923336203891';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
