@@ -1,6 +1,6 @@
 # Food Valley - Pakistani Restaurant Website
 
-A complete, responsive website for Food Valley restaurant located in Layyah, Punjab, Pakistan. Built with React.js frontend and Node.js backend, featuring modern UI/UX design with Three.js 3D elements.
+A complete, responsive website for Food Valley restaurant located in Layyah, Punjab, Pakistan. Built with React.js frontend and Node.js backend, featuring modern UI/UX design with Three.js, 3D elements.
 
 ## 🍽️ About Food Valley
 
